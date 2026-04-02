@@ -12,8 +12,16 @@ box.once("init_kv_space", function()
         {name = "value", type = "varbinary", is_nullable = true}
     })
 
+    -- Primary index for fast key lookup
     space:create_index("primary", {
         parts = { {field = "key", type = "string"} },
+        if_not_exists = true
+    })
+
+    -- Secondary index for range queries (optimized for pairs iteration)
+    space:create_index("key_range", {
+        parts = { {field = "key", type = "string"} },
+        type = "tree",
         if_not_exists = true
     })
 end)

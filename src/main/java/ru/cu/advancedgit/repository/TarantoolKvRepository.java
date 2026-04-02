@@ -116,7 +116,7 @@ public class TarantoolKvRepository implements KvRepository {
         throw new IllegalStateException("Unexpected count result: " + result);
     }
 
-    public List<KvEntry> range(String keySince, String keyTo) {
+    public List<KvEntry> range(String keySince, String keyTo, int limit) {
         validateKey(keySince);
         validateKey(keyTo);
 
@@ -124,18 +124,26 @@ public class TarantoolKvRepository implements KvRepository {
             throw new IllegalArgumentException("keySince must be less than or equal to keyTo");
         }
 
+        if (limit < 0) {
+            throw new IllegalArgumentException("limit must be >= 0");
+        }
+
+        int safeLimit = (limit == 0 || limit > 100_000) ? 100_000 : limit;
+
         String lua =
-                "local key_since, key_to = ...\n" +
+                "local key_since, key_to, limit = ...\n" +
                         "local result = {}\n" +
-                        "for _, tuple in box.space['" + SPACE_NAME + "']:pairs(key_since, {iterator = 'GE'}) do\n" +
-                        "    if tuple[1] > key_to then\n" +
+                        "local count = 0\n" +
+                        "for _, tuple in box.space['" + SPACE_NAME + "'].index['key_range']:pairs(key_since, {iterator = 'GE'}) do\n" +
+                        "    if tuple[1] > key_to or count >= limit then\n" +
                         "        break\n" +
                         "    end\n" +
                         "    table.insert(result, {tuple[1], tuple[2]})\n" +
+                        "    count = count + 1\n" +
                         "end\n" +
                         "return result";
 
-        TarantoolResponse<?> response = client.eval(lua, List.of(keySince, keyTo)).join();
+        TarantoolResponse<?> response = client.eval(lua, List.of(keySince, keyTo, safeLimit)).join();
         Object result = response.get();
 
         List<KvEntry> entries = new java.util.ArrayList<>();

@@ -44,6 +44,7 @@ message DeleteResponse {
 message RangeRequest {
   string key_since = 1;
   string key_to = 2;
+  int32 limit = 3; // Maximum number of records to return (0 = unlimited)
 }
 
 message RangeResponse {
