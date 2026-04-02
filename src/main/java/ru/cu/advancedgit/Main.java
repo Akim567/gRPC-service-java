@@ -22,11 +22,10 @@ public class Main {
                 TarantoolFactory.box().withGroups(Collections.singletonList(connectionGroup));
 
         try (TarantoolBoxClient client = clientBuilder.build()) {
-            TarantoolResponse<List<String>> response =
-                    client.eval("return {'connected to tarantool'}", String.class).join();
+            Object result = client.eval("return 'connected to tarantool'", Object.class).join().get();
 
-            System.out.println("Connected successfully");
-            System.out.println(response.get());
+            System.out.println("Connected successfully to Tarantool!");
+            System.out.println("Response: " + result);
         } catch (Exception e) {
             e.printStackTrace();
         }
