@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.google.protobuf") version "0.9.4"
 }
 
 group = "ru.cu.advancedgit"
@@ -11,20 +12,15 @@ repositories {
 
 dependencies {
     implementation("io.tarantool:tarantool-client:1.5.0")
-
-    // MessagePack
-    implementation("org.msgpack:msgpack-core:0.9.8")
-
-    // Netty
-    implementation("io.netty:netty-codec:4.1.108.Final")
-    implementation("io.netty:netty-transport:4.1.108.Final")
-    implementation("io.netty:netty-buffer:4.1.108.Final")
-    implementation("io.netty:netty-handler:4.1.108.Final")
-    implementation("io.netty:netty-common:4.1.108.Final")
-
-    // Logging
     implementation("org.slf4j:slf4j-simple:2.0.13")
-    implementation("org.slf4j:slf4j-api:2.0.13")
+
+    implementation(platform("io.grpc:grpc-bom:1.65.0"))
+    implementation("io.grpc:grpc-netty-shaded")
+    implementation("io.grpc:grpc-protobuf")
+    implementation("io.grpc:grpc-stub")
+
+    implementation("com.google.protobuf:protobuf-java:4.27.2")
+    compileOnly("org.apache.tomcat:annotations-api:6.0.53")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -39,4 +35,22 @@ java {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.27.2"
+    }
+    plugins {
+        create("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.65.0"
+        }
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.plugins {
+                create("grpc")
+            }
+        }
+    }
 }
