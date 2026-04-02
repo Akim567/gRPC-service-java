@@ -18,8 +18,9 @@ dependencies {
     implementation("io.grpc:grpc-netty-shaded")
     implementation("io.grpc:grpc-protobuf")
     implementation("io.grpc:grpc-stub")
+    implementation("io.grpc:grpc-services")
 
-    implementation("com.google.protobuf:protobuf-java:4.27.2")
+    implementation("com.google.protobuf:protobuf-java:3.25.3")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
@@ -39,7 +40,7 @@ tasks.test {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:4.27.2"
+        artifact = "com.google.protobuf:protoc:3.25.3"
     }
     plugins {
         create("grpc") {
@@ -47,8 +48,8 @@ protobuf {
         }
     }
     generateProtoTasks {
-        all().forEach { task ->
-            task.plugins {
+        all().configureEach {
+            plugins {
                 create("grpc")
             }
         }

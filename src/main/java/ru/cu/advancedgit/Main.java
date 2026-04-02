@@ -2,6 +2,7 @@ package ru.cu.advancedgit;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.protobuf.services.ProtoReflectionService;
 import io.tarantool.client.box.TarantoolBoxClient;
 import io.tarantool.client.factory.TarantoolBoxClientBuilder;
 import io.tarantool.client.factory.TarantoolFactory;
@@ -30,6 +31,7 @@ public class Main {
 
         Server server = ServerBuilder.forPort(9090)
                 .addService(kvService)
+                .addService(ProtoReflectionService.newInstance())
                 .build();
 
         server.start();
