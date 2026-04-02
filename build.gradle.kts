@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.tarantool:tarantool-java-sdk:1.5.0")
+    implementation("io.tarantool:tarantool-client:1.5.0")
     implementation("org.slf4j:slf4j-simple:2.0.13")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
